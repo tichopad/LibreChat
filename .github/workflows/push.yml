@@ -1,0 +1,42 @@
+name: Push changes to the server
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: 'push-and-deploy'
+  cancel-in-progress: true
+
+jobs:
+  push-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH keys
+        uses: tichopad/setup-ssh-client@v1
+        with:
+          known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+
+      - name: Setup cloudflared
+        uses: tichopad/setup-cloudflared-ssh-client@v1
+        with:
+          hostname: ${{ secrets.SSH_SERVER_HOST }}
+
+      - name: Deploy
+        run: |
+          ssh -T ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_HOST }} << EOF
+            cd ~/deployed_projects/LibreChat
+            git pull
+            cp .env.production.template .env
+            echo "CREDS_IV=${{ secrets.CREDS_IV }}" >> .env
+            echo "CREDS_KEY=${{ secrets.CREDS_KEY }}" >> .env
+            echo "JWT_REFRESH_TOKEN=${{ secrets.JWT_REFRESH_TOKEN }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            docker compose up -d
+          EOF

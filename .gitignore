@@ -52,15 +52,12 @@ bower_components/
 .floo
 .flooignore
 
-#config file
-librechat.yaml
-librechat.yml
-
 # Environment
 .npmrc
 .env*
 my.secrets
 !**/.env.example
+!**/.env.production.template
 !**/.env.test.example
 cache.json
 api/data/

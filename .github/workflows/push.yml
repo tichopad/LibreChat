@@ -39,5 +39,6 @@ jobs:
             echo "CREDS_KEY=${{ secrets.CREDS_KEY }}" >> .env
             echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "RAG_OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
             docker compose -f ./deploy-compose.yml up -d
           EOF

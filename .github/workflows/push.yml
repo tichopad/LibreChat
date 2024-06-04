@@ -34,6 +34,7 @@ jobs:
             cd ~/deployed_projects/LibreChat
             git pull
             cp .env.production.template .env
+            echo "" >> .env
             echo "CREDS_IV=${{ secrets.CREDS_IV }}" >> .env
             echo "CREDS_KEY=${{ secrets.CREDS_KEY }}" >> .env
             echo "JWT_REFRESH_TOKEN=${{ secrets.JWT_REFRESH_TOKEN }}" >> .env

@@ -37,7 +37,7 @@ jobs:
             echo "" >> .env
             echo "CREDS_IV=${{ secrets.CREDS_IV }}" >> .env
             echo "CREDS_KEY=${{ secrets.CREDS_KEY }}" >> .env
-            echo "JWT_REFRESH_TOKEN=${{ secrets.JWT_REFRESH_TOKEN }}" >> .env
+            echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
             docker compose -f ./deploy-compose.yml up -d
           EOF

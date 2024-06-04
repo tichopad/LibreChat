@@ -11,8 +11,10 @@ services:
       - mongodb
       - rag_api
     restart: always
+    ports:
+      - 3080:3080
     extra_hosts:
-    - "host.docker.internal:host-gateway"
+      - "host.docker.internal:host-gateway"
     env_file:
       - .env
     environment:

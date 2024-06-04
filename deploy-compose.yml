@@ -6,7 +6,7 @@ services:
     #   dockerfile: Dockerfile.multi
     #   target: api-build
     image: ghcr.io/danny-avila/librechat-dev-api:latest
-    container_name: LibreChat-API
+    container_name: librechat-api
     depends_on:
       - mongodb
       - rag_api
@@ -35,7 +35,7 @@ services:
       context: .
       dockerfile: Dockerfile.multi
       target: prod-stage
-    container_name: LibreChat-NGINX
+    container_name: librechat-nginx
     depends_on:
       - api
     restart: always

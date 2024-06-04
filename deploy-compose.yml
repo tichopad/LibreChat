@@ -36,8 +36,6 @@ services:
       dockerfile: Dockerfile.multi
       target: prod-stage
     container_name: librechat-nginx
-    ports:
-      - 3080:80
     depends_on:
       - api
     restart: always

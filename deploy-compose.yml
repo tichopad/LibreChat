@@ -11,8 +11,6 @@ services:
       - mongodb
       - rag_api
     restart: always
-    ports:
-      - 3080:3080
     extra_hosts:
       - "host.docker.internal:host-gateway"
     env_file:
@@ -38,6 +36,8 @@ services:
       dockerfile: Dockerfile.multi
       target: prod-stage
     container_name: librechat-nginx
+    ports:
+      - 3080:80
     depends_on:
       - api
     restart: always

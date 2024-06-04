@@ -52,6 +52,8 @@ services:
     volumes:
       - ./data-node:/data/db
     command: mongod --noauth
+    networks:
+      - chomi.quest
   meilisearch:
     container_name: chat-meilisearch
     image: getmeili/meilisearch:v1.7.3
@@ -65,6 +67,8 @@ services:
       - MEILI_NO_ANALYTICS=true
     volumes:
       - ./meili_data_v1.7:/meili_data
+    networks:
+      - chomi.quest
   vectordb:
     image: ankane/pgvector:latest
     environment:
@@ -74,6 +78,8 @@ services:
     restart: always
     volumes:
       - pgdata2:/var/lib/postgresql/data
+    networks:
+      - chomi.quest
   rag_api:
     image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
     environment:
@@ -84,6 +90,8 @@ services:
       - vectordb
     env_file:
       - .env
+    networks:
+      - chomi.quest
 
 volumes:
   pgdata2:

@@ -20,9 +20,10 @@ interface:
     openNewTab: true
 
 fileConfig:
-  openAI:
-    disabled: true  # Disables file uploading to the OpenAI endpoint
-  default:
-    totalSizeLimit: 20
+  endpoints:
+    openAI:
+      disabled: true  # Disables file uploading to the OpenAI endpoint
+    default:
+      totalSizeLimit: 20
   serverFileSizeLimit: 50  # Global server file size limit in MB
   avatarSizeLimit: 2  # Limit for user avatar image size in

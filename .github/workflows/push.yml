@@ -3,7 +3,7 @@ name: Push changes to the server
 on:
   push:
     branches:
-      - main
+      - dev
 
 concurrency:
   group: 'push-and-deploy'

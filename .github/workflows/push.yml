@@ -32,7 +32,8 @@ jobs:
         run: |
           ssh -T ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_HOST }} << EOF
             cd ~/deployed_projects/LibreChat
-            git pull
+            git fetch --all
+            git checkout dev && git pull
             cp .env.production.template .env
             echo "" >> .env
             echo "CREDS_IV=${{ secrets.CREDS_IV }}" >> .env

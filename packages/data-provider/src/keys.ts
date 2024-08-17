@@ -27,6 +27,7 @@ export enum QueryKeys {
   assistantDocs = 'assistantDocs',
   fileDownload = 'fileDownload',
   voices = 'voices',
+  customConfigSpeech = 'customConfigSpeech',
   prompts = 'prompts',
   prompt = 'prompt',
   promptGroups = 'promptGroups',
@@ -35,6 +36,8 @@ export enum QueryKeys {
   categories = 'categories',
   randomPrompts = 'randomPrompts',
   roles = 'roles',
+  conversationTags = 'conversationTags',
+  health = 'health',
 }
 
 export enum MutationKeys {

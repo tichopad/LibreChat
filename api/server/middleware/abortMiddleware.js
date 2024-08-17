@@ -1,10 +1,10 @@
 const { isAssistantsEndpoint } = require('librechat-data-provider');
 const { sendMessage, sendError, countTokens, isEnabled } = require('~/server/utils');
 const { truncateText, smartTruncateText } = require('~/app/clients/prompts');
-const { saveMessage, getConvo, getConvoTitle } = require('~/models');
 const clearPendingReq = require('~/cache/clearPendingReq');
+const { spendTokens } = require('~/models/spendTokens');
 const abortControllers = require('./abortControllers');
-const spendTokens = require('~/models/spendTokens');
+const { saveMessage, getConvo } = require('~/models');
 const { abortRun } = require('./abortRun');
 const { logger } = require('~/config');
 
@@ -30,7 +30,10 @@ async function abortMessage(req, res) {
     return res.status(204).send({ message: 'Request not found' });
   }
   const finalEvent = await abortController.abortCompletion();
-  logger.info('[abortMessage] Aborted request', { abortKey });
+  logger.debug(
+    `[abortMessage] ID: ${req.user.id} | ${req.user.email} | Aborted request: ` +
+      JSON.stringify({ abortKey }),
+  );
   abortControllers.delete(abortKey);
 
   if (res.headersSent && finalEvent) {
@@ -69,8 +72,10 @@ const createAbortController = (req, res, getAbortData, getReqData) => {
    */
   const onStart = (userMessage, responseMessageId) => {
     sendMessage(res, { message: userMessage, created: true });
+
     const abortKey = userMessage?.conversationId ?? req.user.id;
     const prevRequest = abortControllers.get(abortKey);
+
     if (prevRequest && prevRequest?.abortController) {
       const data = prevRequest.abortController.getAbortData();
       getReqData({ userMessage: data?.userMessage });
@@ -81,6 +86,7 @@ const createAbortController = (req, res, getAbortData, getReqData) => {
       });
       return;
     }
+
     abortControllers.set(abortKey, { abortController, ...endpointOption });
 
     res.on('finish', function () {
@@ -90,7 +96,8 @@ const createAbortController = (req, res, getAbortData, getReqData) => {
 
   abortController.abortCompletion = async function () {
     abortController.abort();
-    const { conversationId, userMessage, promptTokens, ...responseData } = getAbortData();
+    const { conversationId, userMessage, userMessagePromise, promptTokens, ...responseData } =
+      getAbortData();
     const completionTokens = await countTokens(responseData?.text ?? '');
     const user = req.user.id;
 
@@ -112,12 +119,26 @@ const createAbortController = (req, res, getAbortData, getReqData) => {
       { promptTokens, completionTokens },
     );
 
-    saveMessage({ ...responseMessage, user });
+    saveMessage(
+      req,
+      { ...responseMessage, user },
+      { context: 'api/server/middleware/abortMiddleware.js' },
+    );
+
+    let conversation;
+    if (userMessagePromise) {
+      const resolved = await userMessagePromise;
+      conversation = resolved?.conversation;
+    }
+
+    if (!conversation) {
+      conversation = await getConvo(req.user.id, conversationId);
+    }
 
     return {
-      title: await getConvoTitle(user, conversationId),
+      title: conversation && !conversation.title ? null : conversation?.title || 'New Chat',
       final: true,
-      conversation: await getConvo(user, conversationId),
+      conversation,
       requestMessage: userMessage,
       responseMessage: responseMessage,
     };
@@ -176,7 +197,7 @@ const handleAbortError = async (res, req, error, data) => {
       }
     };
 
-    await sendError(res, options, callback);
+    await sendError(req, res, options, callback);
   };
 
   if (partialText && partialText.length > 5) {
